@@ -1,45 +1,101 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SQLite;
 using SbucheaTudorLab7.Models;
 
 namespace SbucheaTudorLab7.Data
 {
-    public class ShoppingListDatabase
+    public class ShopListDatabase
     {
-        readonly SQLiteAsyncConnection _database;
-        public ShoppingListDatabase(string dbPath)
+        private readonly SQLiteAsyncConnection _database;
+
+        public ShopListDatabase(string dbPath)
         {
             _database = new SQLiteAsyncConnection(dbPath);
             _database.CreateTableAsync<ShopList>().Wait();
+            _database.CreateTableAsync<Product>().Wait();
+            _database.CreateTableAsync<ListProduct>().Wait();
         }
+
+        // Salveaza sau actualizeaza un produs
+        public Task<int> SaveProductAsync(Product product)
+        {
+            if (product.ID != 0)
+            {
+                return _database.UpdateAsync(product);
+            }
+            else
+            {
+                return _database.InsertAsync(product);
+            }
+        }
+
+        // Sterge un produs
+        public Task<int> DeleteProductAsync(Product product)
+        {
+            return _database.DeleteAsync(product);
+        }
+
+        // Obtine toate produsele
+        public Task<List<Product>> GetProductsAsync()
+        {
+            return _database.Table<Product>().ToListAsync();
+        }
+
+        // Salveaza sau actualizeaza o legatura intre o lista si un produs
+        public Task<int> SaveListProductAsync(ListProduct listProduct)
+        {
+            if (listProduct.ID != 0)
+            {
+                return _database.UpdateAsync(listProduct);
+            }
+            else
+            {
+                return _database.InsertAsync(listProduct);
+            }
+        }
+
+        // Obtine toate produsele dintr-o lista de cumparaturi
+        public Task<List<Product>> GetListProductsAsync(int shopListId)
+        {
+            return _database.QueryAsync<Product>(
+                "SELECT P.ID, P.Description FROM Product P " +
+                "INNER JOIN ListProduct LP ON P.ID = LP.ProductID " +
+                "WHERE LP.ShopListID = ?",
+                shopListId);
+        }
+
+        // Salveaza sau actualizeaza o lista de cumparaturi
+        public Task<int> SaveShopListAsync(ShopList shopList)
+        {
+            if (shopList.ID != 0)
+            {
+                return _database.UpdateAsync(shopList);
+            }
+            else
+            {
+                return _database.InsertAsync(shopList);
+            }
+        }
+
+        // Sterge o lista de cumparaturi
+        public Task<int> DeleteShopListAsync(ShopList shopList)
+        {
+            return _database.DeleteAsync(shopList);
+        }
+
+        // Obtine toate listele de cumparaturi
         public Task<List<ShopList>> GetShopListsAsync()
         {
             return _database.Table<ShopList>().ToListAsync();
         }
-        public Task<ShopList> GetShopListAsync(int id)
+
+        // Sterge un produs dintr-o lista de cumparaturi
+        public Task<int> DeleteListProductAsync(ListProduct listProduct)
         {
-            return _database.Table<ShopList>()
-            .Where(i => i.ID == id)
-           .FirstOrDefaultAsync();
-        }
-        public Task<int> SaveShopListAsync(ShopList slist)
-        {
-            if (slist.ID != 0)
-            {
-                return _database.UpdateAsync(slist);
-            }
-            else
-            {
-                return _database.InsertAsync(slist);
-            }
-        }
-        public Task<int> DeleteShopListAsync(ShopList slist)
-        {
-            return _database.DeleteAsync(slist);
+            return _database.DeleteAsync(listProduct);
         }
     }
 }
+

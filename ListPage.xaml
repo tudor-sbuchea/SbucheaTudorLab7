@@ -1,22 +1,52 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:SbucheaTudorLab7"
              x:Class="SbucheaTudorLab7.ListPage"
              Title="ListPage">
-    <StackLayout Margin="20">
-        <Editor Placeholder="Enter the description of the shopping list"
- Text="{Binding Description}"
- HeightRequest="100" />
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Button Text="Save"
- Clicked="OnSaveButtonClicked" />
-            <Button Grid.Column="1"
- Text="Delete"
- Clicked="OnDeleteButtonClicked"/>
-        </Grid>
-    </StackLayout>
+    <ContentPage.Content>
+        <StackLayout Margin="20">
+            <!-- Editor pentru descrierea listei -->
+            <Editor Placeholder="Enter the description of the shopping list"
+                    Text="{Binding Description}"
+                    HeightRequest="50">
+                <Editor.Behaviors>
+                    <local:ValidationBehaviour />
+                </Editor.Behaviors>
+            </Editor>
+
+            <!-- Grid pentru butoanele Save și Delete -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Text="Save"
+                        Clicked="OnSaveButtonClicked" />
+                <Button Grid.Column="1"
+                        Text="Delete"
+                        Clicked="OnDeleteButtonClicked" />
+            </Grid>
+
+            <!-- Buton pentru navigarea la ProductPage -->
+            <Button Text="Add/Choose Item to buy"
+                    MaximumWidthRequest="300"
+                    Clicked="OnChooseButtonClicked" />
+
+            <!-- ListView pentru afișarea produselor selectate -->
+            <ListView x:Name="listView"
+                      Margin="20">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding Description}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Buton pentru ștergerea unui produs din listă -->
+            <Button Text="Delete Item"
+                    Clicked="OnDeleteItemClicked"
+                    MaximumWidthRequest="300" />
+        </StackLayout>
+    </ContentPage.Content>
 </ContentPage>
